@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conferência Metanoia 2025 - Pedidos de Camisas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'purple-primary': '#8B5CF6',
+                        'purple-light': '#C4B5FD',
+                        'blue-secondary': '#3B82F6',
+                        'coral': '#FF6B6B',
+                        'coral-light': '#FFB3B3'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #8B5CF6 0%, #3B82F6 100%);
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #8B5CF6 0%, #3B82F6 100%);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(139, 92, 246, 0.4);
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .pulse-success {
+            animation: pulseSuccess 0.6s ease-in-out;
+        }
+        
+        @keyframes pulseSuccess {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <header class="gradient-bg text-white py-8 md:py-12 px-4">
+        <div class="max-w-6xl mx-auto text-center">
+            <div class="flex justify-center mb-4 md:mb-6">
+                <div class="bg-white/20 backdrop-blur-sm rounded-full p-3 md:p-4">
+                    <svg class="w-12 h-12 md:w-16 md:h-16 text-white" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.94-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+                    </svg>
+                </div>
+            </div>
+            <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-3 md:mb-4">Conferência Metanoia 2025</h1>
+            <p class="text-lg sm:text-xl md:text-2xl lg:text-3xl font-light mb-2 text-purple-light">#CrescendoNaGraça</p>
+            <div class="flex items-center justify-center gap-2 text-sm sm:text-base md:text-lg lg:text-xl">
+                <svg class="w-5 h-5 md:w-6 md:h-6" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/>
+                </svg>
+                <span>25 a 27 de Abril de 2025</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="max-w-6xl mx-auto px-4 py-4 md:py-8">
+        <!-- Painel de Configuração do Supabase -->
+        <div id="configPanel" class="bg-white rounded-2xl shadow-lg p-4 md:p-8 mb-6 md:mb-8 border-l-4 border-blue-500">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-4 md:mb-6 gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="bg-gradient-to-r from-blue-500 to-purple-600 rounded-full p-2 md:p-3">
+                        <svg class="w-5 h-5 md:w-6 md:h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="text-lg md:text-2xl font-bold text-gray-800">Configuração do Banco</h2>
+                        <p class="text-xs md:text-sm text-gray-600">Configure suas credenciais do Supabase</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div id="connectionStatus" class="flex items-center gap-2 text-xs md:text-sm">
+                        <div class="w-3 h-3 bg-gray-400 rounded-full"></div>
+                        <span class="text-gray-600">Não conectado</span>
+                    </div>
+                    <button id="toggleConfig" class="text-gray-500 hover:text-gray-700 transition-colors">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            
+            <div id="configForm" class="space-y-4">
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">URL do Supabase</label>
+                        <input type="url" id="supabaseUrl" 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                               placeholder="https://seuproject.supabase.co">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Chave Pública (anon key)</label>
+                        <input type="password" id="supabaseKey" 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                               placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...">
+                    </div>
+                </div>
+                
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <button id="testConnection" 
+                            class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 md:px-6 rounded-xl transition-all duration-200 text-sm md:text-base">
+                        <span class="flex items-center justify-center gap-2">
+                            <svg class="w-4 h-4 md:w-5 md:h-5" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                            </svg>
+                            Testar Conexão
+                        </span>
+                    </button>
+                    <button id="saveConfig" 
+                            class="bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-4 md:px-6 rounded-xl transition-all duration-200 text-sm md:text-base">
+                        <span class="flex items-center justify-center gap-2">
+                            <svg class="w-4 h-4 md:w-5 md:h-5" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/>
+                            </svg>
+                            Salvar e Conectar
+                        </span>
+                    </button>
+                </div>
+                
+                <div class="bg-blue-50 border border-blue-200 rounded-xl p-3 md:p-4">
+                    <h4 class="font-semibold text-blue-800 mb-2 text-sm md:text-base">Como obter suas credenciais:</h4>
+                    <ol class="text-xs md:text-sm text-blue-700 space-y-1">
+                        <li>1. Acesse seu projeto no <a href="https://supabase.com/dashboard" target="_blank" class="underline">Supabase Dashboard</a></li>
+                        <li>2. Vá em Settings → API</li>
+                        <li>3. Copie a "URL" e a "anon public" key</li>
+                        <li>4. Cole aqui e clique em "Salvar e Conectar"</li>
+                    </ol>
+                </div>
+                
+                <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 md:p-4">
+                    <h4 class="font-semibold text-amber-800 mb-2 text-sm md:text-base">Criar tabela no banco:</h4>
+                    <p class="text-xs md:text-sm text-amber-700 mb-2">Execute este SQL no seu Supabase:</p>
+                    <code class="block bg-gray-800 text-green-400 p-2 md:p-3 rounded text-xs overflow-x-auto">
+CREATE TABLE metanoia_orders (<br>
+&nbsp;&nbsp;id BIGSERIAL PRIMARY KEY,<br>
+&nbsp;&nbsp;full_name TEXT NOT NULL,<br>
+&nbsp;&nbsp;size TEXT NOT NULL,<br>
+&nbsp;&nbsp;gender TEXT NOT NULL,<br>
+&nbsp;&nbsp;email TEXT UNIQUE NOT NULL,<br>
+&nbsp;&nbsp;created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()<br>
+);
+                    </code>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid lg:grid-cols-2 gap-6 md:gap-8">
+            <!-- Formulário de Pedido -->
+            <div class="bg-white rounded-2xl shadow-lg p-4 md:p-8 card-hover">
+                <div class="flex items-center gap-3 mb-4 md:mb-6">
+                    <div class="bg-gradient-to-r from-purple-primary to-blue-secondary rounded-full p-2 md:p-3">
+                        <svg class="w-5 h-5 md:w-6 md:h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                        </svg>
+                    </div>
+                    <h2 class="text-lg md:text-2xl font-bold text-gray-800">Solicitar Camisa</h2>
+                </div>
+
+                <form id="orderForm" class="space-y-4 md:space-y-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Nome Completo</label>
+                        <input type="text" id="fullName" required 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-primary focus:border-transparent transition-all duration-200"
+                               placeholder="Digite seu nome completo">
+                    </div>
+
+                    <div class="grid sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Tamanho</label>
+                            <select id="size" required 
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-primary focus:border-transparent transition-all duration-200">
+                                <option value="">Selecione o tamanho</option>
+                                <option value="PP">PP</option>
+                                <option value="P">P</option>
+                                <option value="M">M</option>
+                                <option value="G">G</option>
+                                <option value="GG">GG</option>
+                                <option value="XGG">XGG</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Gênero</label>
+                            <select id="gender" required 
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-primary focus:border-transparent transition-all duration-200">
+                                <option value="">Selecione o gênero</option>
+                                <option value="Masculino">Masculino</option>
+                                <option value="Feminino">Feminino</option>
+                                <option value="Unissex">Unissex</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">E-mail</label>
+                        <input type="email" id="email" required 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-primary focus:border-transparent transition-all duration-200"
+                               placeholder="seu@email.com">
+                    </div>
+
+                    <button type="submit" 
+                            class="w-full btn-primary text-white font-semibold py-4 px-6 rounded-xl shadow-lg">
+                        <span class="flex items-center justify-center gap-2">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/>
+                            </svg>
+                            Solicitar Camisa
+                        </span>
+                    </button>
+                </form>
+
+                <!-- Mensagens de Feedback -->
+                <div id="successMessage" class="hidden mt-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded-xl">
+                    <div class="flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/>
+                        </svg>
+                        <span>Pedido realizado com sucesso! Sua camisa foi solicitada.</span>
+                    </div>
+                </div>
+
+                <div id="errorMessage" class="hidden mt-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-xl">
+                    <div class="flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                        </svg>
+                        <span>Você já fez um pedido! Apenas um pedido por pessoa é permitido.</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lista de Pedidos -->
+            <div class="bg-white rounded-2xl shadow-lg p-4 md:p-8">
+                <div class="flex items-center gap-3 mb-4 md:mb-6">
+                    <div class="bg-gradient-to-r from-coral to-coral-light rounded-full p-2 md:p-3">
+                        <svg class="w-5 h-5 md:w-6 md:h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
+                        </svg>
+                    </div>
+                    <h2 class="text-lg md:text-2xl font-bold text-gray-800">Pedidos Realizados</h2>
+                </div>
+
+                <!-- Estatísticas -->
+                <div class="grid grid-cols-2 gap-3 md:gap-4 mb-4 md:mb-6">
+                    <div class="bg-gradient-to-r from-purple-primary to-purple-light rounded-xl p-3 md:p-4 text-white text-center">
+                        <div class="text-xl md:text-2xl font-bold" id="totalOrders">0</div>
+                        <div class="text-xs md:text-sm opacity-90">Total de Pedidos</div>
+                    </div>
+                    <div class="bg-gradient-to-r from-blue-secondary to-cyan-400 rounded-xl p-3 md:p-4 text-white text-center">
+                        <div class="text-xl md:text-2xl font-bold" id="todayOrders">0</div>
+                        <div class="text-xs md:text-sm opacity-90">Pedidos Hoje</div>
+                    </div>
+                </div>
+
+                <!-- Lista de Pedidos -->
+                <div id="ordersList" class="space-y-3 md:space-y-4 max-h-80 md:max-h-96 overflow-y-auto">
+                    <div class="text-center text-gray-500 py-8">
+                        <svg class="w-16 h-16 mx-auto mb-4 opacity-50" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+                        </svg>
+                        <p>Nenhum pedido realizado ainda</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // Configuração dinâmica do Supabase
+        let supabase = null;
+        let isConnected = false;
+        
+        let orders = [];
+        let userEmails = new Set();
+        let isLoading = false;
+
+        // Funções de configuração do Supabase
+        function updateConnectionStatus(connected, message = '') {
+            const statusEl = document.getElementById('connectionStatus');
+            const dot = statusEl.querySelector('div');
+            const text = statusEl.querySelector('span');
+            
+            if (connected) {
+                dot.className = 'w-3 h-3 bg-green-500 rounded-full animate-pulse';
+                text.textContent = 'Conectado';
+                text.className = 'text-green-600';
+                isConnected = true;
+            } else {
+                dot.className = 'w-3 h-3 bg-red-500 rounded-full';
+                text.textContent = message || 'Não conectado';
+                text.className = 'text-red-600';
+                isConnected = false;
+            }
+        }
+
+        function saveCredentials(url, key) {
+            localStorage.setItem('supabase_url', url);
+            localStorage.setItem('supabase_key', key);
+        }
+
+        function loadCredentials() {
+            const url = localStorage.getItem('supabase_url');
+            const key = localStorage.getItem('supabase_key');
+            
+            if (url && key) {
+                document.getElementById('supabaseUrl').value = url;
+                document.getElementById('supabaseKey').value = key;
+                return { url, key };
+            }
+            return null;
+        }
+
+        function initializeSupabase(url, key) {
+            try {
+                supabase = window.supabase.createClient(url, key);
+                return true;
+            } catch (error) {
+                console.error('Erro ao inicializar Supabase:', error);
+                return false;
+            }
+        }
+
+        async function testSupabaseConnection() {
+            if (!supabase) return false;
+            
+            try {
+                const { data, error } = await supabase
+                    .from('metanoia_orders')
+                    .select('count', { count: 'exact', head: true });
+                
+                return !error;
+            } catch (error) {
+                console.error('Erro no teste de conexão:', error);
+                return false;
+            }
+        }
+
+        // Event listeners para configuração
+        document.getElementById('toggleConfig').addEventListener('click', function() {
+            const form = document.getElementById('configForm');
+            const icon = this.querySelector('svg');
+            
+            if (form.style.display === 'none') {
+                form.style.display = 'block';
+                icon.style.transform = 'rotate(180deg)';
+            } else {
+                form.style.display = 'none';
+                icon.style.transform = 'rotate(0deg)';
+            }
+        });
+
+        document.getElementById('testConnection').addEventListener('click', async function() {
+            const url = document.getElementById('supabaseUrl').value.trim();
+            const key = document.getElementById('supabaseKey').value.trim();
+            
+            if (!url || !key) {
+                alert('Por favor, preencha a URL e a chave do Supabase');
+                return;
+            }
+            
+            const btn = this;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = `
+                <span class="flex items-center gap-2">
+                    <svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Testando...
+                </span>
+            `;
+            btn.disabled = true;
+            
+            if (initializeSupabase(url, key)) {
+                const connected = await testSupabaseConnection();
+                if (connected) {
+                    updateConnectionStatus(true);
+                    alert('✅ Conexão bem-sucedida! Banco de dados conectado.');
+                } else {
+                    updateConnectionStatus(false, 'Erro na conexão');
+                    alert('❌ Falha na conexão. Verifique suas credenciais e se a tabela existe.');
+                }
+            } else {
+                updateConnectionStatus(false, 'Credenciais inválidas');
+                alert('❌ Credenciais inválidas. Verifique a URL e a chave.');
+            }
+            
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        });
+
+        document.getElementById('saveConfig').addEventListener('click', async function() {
+            const url = document.getElementById('supabaseUrl').value.trim();
+            const key = document.getElementById('supabaseKey').value.trim();
+            
+            if (!url || !key) {
+                alert('Por favor, preencha a URL e a chave do Supabase');
+                return;
+            }
+            
+            const btn = this;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = `
+                <span class="flex items-center gap-2">
+                    <svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Salvando...
+                </span>
+            `;
+            btn.disabled = true;
+            
+            if (initializeSupabase(url, key)) {
+                const connected = await testSupabaseConnection();
+                if (connected) {
+                    saveCredentials(url, key);
+                    updateConnectionStatus(true);
+                    
+                    // Carregar dados do banco
+                    await loadOrders();
+                    
+                    // Minimizar painel
+                    document.getElementById('configForm').style.display = 'none';
+                    document.getElementById('toggleConfig').querySelector('svg').style.transform = 'rotate(0deg)';
+                    
+                    alert('✅ Configuração salva! Banco de dados conectado e dados carregados.');
+                } else {
+                    updateConnectionStatus(false, 'Erro na conexão');
+                    alert('❌ Falha na conexão. Verifique suas credenciais e se a tabela existe.');
+                }
+            } else {
+                updateConnectionStatus(false, 'Credenciais inválidas');
+                alert('❌ Credenciais inválidas. Verifique a URL e a chave.');
+            }
+            
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        });
+
+        // Função para mostrar loading
+        function setLoading(loading) {
+            isLoading = loading;
+            const submitBtn = document.querySelector('button[type="submit"]');
+            const btnText = submitBtn.querySelector('span');
+            
+            if (loading) {
+                btnText.innerHTML = `
+                    <svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Enviando...
+                `;
+                submitBtn.disabled = true;
+            } else {
+                btnText.innerHTML = `
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/>
+                    </svg>
+                    Solicitar Camisa
+                `;
+                submitBtn.disabled = false;
+            }
+        }
+
+        // Carregar pedidos do Supabase
+        async function loadOrders() {
+            if (!supabase || !isConnected) {
+                // Fallback para localStorage se não conectado
+                orders = JSON.parse(localStorage.getItem('metanoiaOrders')) || [];
+                userEmails = new Set(orders.map(order => order.email));
+                renderOrders();
+                updateStats();
+                return;
+            }
+
+            try {
+                const { data, error } = await supabase
+                    .from('metanoia_orders')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (error) {
+                    console.error('Erro ao carregar pedidos:', error);
+                    updateConnectionStatus(false, 'Erro ao carregar dados');
+                    // Fallback para localStorage se houver erro
+                    orders = JSON.parse(localStorage.getItem('metanoiaOrders')) || [];
+                } else {
+                    orders = data.map(order => ({
+                        id: order.id,
+                        name: order.full_name,
+                        size: order.size,
+                        gender: order.gender,
+                        email: order.email,
+                        date: order.created_at
+                    }));
+                    userEmails = new Set(orders.map(order => order.email));
+                }
+                
+                renderOrders();
+                updateStats();
+            } catch (err) {
+                console.error('Erro de conexão:', err);
+                updateConnectionStatus(false, 'Erro de conexão');
+                // Fallback para localStorage
+                orders = JSON.parse(localStorage.getItem('metanoiaOrders')) || [];
+                userEmails = new Set(orders.map(order => order.email));
+                renderOrders();
+                updateStats();
+            }
+        }
+
+        // Salvar pedido no Supabase
+        async function saveOrder(orderData) {
+            if (!supabase || !isConnected) {
+                return { success: false, error: 'Banco não conectado' };
+            }
+
+            try {
+                const { data, error } = await supabase
+                    .from('metanoia_orders')
+                    .insert([{
+                        full_name: orderData.name,
+                        size: orderData.size,
+                        gender: orderData.gender,
+                        email: orderData.email
+                    }])
+                    .select();
+
+                if (error) {
+                    throw error;
+                }
+
+                return { success: true, data: data[0] };
+            } catch (error) {
+                console.error('Erro ao salvar no Supabase:', error);
+                return { success: false, error };
+            }
+        }
+
+        function updateStats() {
+            const today = new Date().toDateString();
+            const todayOrders = orders.filter(order => new Date(order.date).toDateString() === today);
+            
+            document.getElementById('totalOrders').textContent = orders.length;
+            document.getElementById('todayOrders').textContent = todayOrders.length;
+        }
+
+        function renderOrders() {
+            const ordersList = document.getElementById('ordersList');
+            
+            if (orders.length === 0) {
+                ordersList.innerHTML = `
+                    <div class="text-center text-gray-500 py-8">
+                        <svg class="w-16 h-16 mx-auto mb-4 opacity-50" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+                        </svg>
+                        <p>Nenhum pedido realizado ainda</p>
+                    </div>
+                `;
+                return;
+            }
+
+            ordersList.innerHTML = orders.map(order => `
+                <div class="bg-gray-50 rounded-xl p-4 card-hover fade-in">
+                    <div class="flex items-start justify-between">
+                        <div class="flex-1">
+                            <h3 class="font-semibold text-gray-800 mb-1">${order.name}</h3>
+                            <div class="flex items-center gap-4 text-sm text-gray-600 mb-2">
+                                <span class="flex items-center gap-1">
+                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                    </svg>
+                                    ${order.size}
+                                </span>
+                                <span>${order.gender}</span>
+                            </div>
+                            <p class="text-xs text-gray-500">${new Date(order.date).toLocaleDateString('pt-BR')}</p>
+                        </div>
+                        <div class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-medium">
+                            Confirmado
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function showMessage(type, message = null, duration = 4000) {
+            const successMsg = document.getElementById('successMessage');
+            const errorMsg = document.getElementById('errorMessage');
+            
+            successMsg.classList.add('hidden');
+            errorMsg.classList.add('hidden');
+            
+            if (type === 'success') {
+                if (message) {
+                    successMsg.querySelector('span').textContent = message;
+                }
+                successMsg.classList.remove('hidden');
+                successMsg.classList.add('pulse-success');
+                setTimeout(() => successMsg.classList.remove('pulse-success'), 600);
+            } else {
+                if (message) {
+                    errorMsg.querySelector('span').textContent = message;
+                }
+                errorMsg.classList.remove('hidden');
+            }
+            
+            setTimeout(() => {
+                successMsg.classList.add('hidden');
+                errorMsg.classList.add('hidden');
+            }, duration);
+        }
+
+        document.getElementById('orderForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            if (isLoading) return;
+            
+            const formData = {
+                name: document.getElementById('fullName').value,
+                size: document.getElementById('size').value,
+                gender: document.getElementById('gender').value,
+                email: document.getElementById('email').value,
+                date: new Date().toISOString()
+            };
+
+            // Verificar se o email já foi usado
+            if (userEmails.has(formData.email)) {
+                showMessage('error', 'Você já fez um pedido! Apenas um pedido por pessoa é permitido.');
+                return;
+            }
+
+            setLoading(true);
+
+            // Tentar salvar no Supabase
+            const result = await saveOrder(formData);
+            
+            if (result.success) {
+                // Adicionar à lista local
+                const newOrder = {
+                    id: result.data.id,
+                    name: formData.name,
+                    size: formData.size,
+                    gender: formData.gender,
+                    email: formData.email,
+                    date: result.data.created_at
+                };
+                
+                orders.unshift(newOrder);
+                userEmails.add(formData.email);
+                
+                // Backup no localStorage
+                localStorage.setItem('metanoiaOrders', JSON.stringify(orders));
+                
+                // Limpar formulário
+                this.reset();
+                
+                // Atualizar interface
+                renderOrders();
+                updateStats();
+                showMessage('success', 'Pedido salvo com sucesso no banco de dados!');
+            } else {
+                // Fallback para localStorage se Supabase falhar
+                orders.unshift(formData);
+                userEmails.add(formData.email);
+                localStorage.setItem('metanoiaOrders', JSON.stringify(orders));
+                
+                this.reset();
+                renderOrders();
+                updateStats();
+                showMessage('error', 'Pedido salvo localmente. Verifique a conexão com o banco de dados.');
+            }
+            
+            setLoading(false);
+        });
+
+        // Inicialização automática
+        async function initialize() {
+            // Tentar carregar credenciais salvas
+            const credentials = loadCredentials();
+            
+            if (credentials) {
+                if (initializeSupabase(credentials.url, credentials.key)) {
+                    const connected = await testSupabaseConnection();
+                    if (connected) {
+                        updateConnectionStatus(true);
+                        await loadOrders();
+                        
+                        // Minimizar painel se conectado
+                        document.getElementById('configForm').style.display = 'none';
+                        document.getElementById('toggleConfig').querySelector('svg').style.transform = 'rotate(0deg)';
+                    } else {
+                        updateConnectionStatus(false, 'Falha na reconexão');
+                        loadOrders(); // Carregar do localStorage
+                    }
+                } else {
+                    updateConnectionStatus(false, 'Credenciais inválidas');
+                    loadOrders(); // Carregar do localStorage
+                }
+            } else {
+                updateConnectionStatus(false, 'Configure o banco');
+                loadOrders(); // Carregar do localStorage
+            }
+        }
+
+        // Inicializar
+        initialize();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97d2995af299d833',t:'MTc1NzU0NTgyOS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

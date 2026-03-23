@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Notion - Dados Reais</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3B82F6',
+                        secondary: '#10B981',
+                        dark: '#1F2937',
+                        light: '#F9FAFB',
+                        status_andamento: '#F59E0B',
+                        status_nao_iniciada: '#EF4444',
+                        status_concluida: '#10B981'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .property-pill {
+            display: inline-block;
+            background-color: #f3f4f6;
+            border-radius: 9999px;
+            padding: 2px 8px;
+            font-size: 0.75rem;
+            margin-right: 4px;
+            margin-bottom: 4px;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .status-andamento {
+            background-color: #FEF3C7;
+            color: #92400E;
+        }
+        .status-nao-iniciada {
+            background-color: #FEE2E2;
+            color: #991B1B;
+        }
+        .status-concluida {
+            background-color: #D1FAE5;
+            color: #065F46;
+        }
+        .custom-select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236B7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            background-size: 16px 12px;
+            appearance: none;
+        }
+        .pagination-btn {
+            transition: all 0.2s ease;
+        }
+        .pagination-btn:hover:not(.disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <header class="bg-white shadow-sm">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <h1 class="text-2xl font-bold text-primary">Notion Dashboard</h1>
+            <div class="flex items-center space-x-4">
+                <button id="refreshBtn" class="bg-primary text-white px-4 py-2 rounded-lg flex items-center">
+                    <i class="fas fa-sync-alt mr-2"></i> Atualizar
+                </button>
+                <button id="configBtn" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg">
+                    <i class="fas fa-cog"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8">
+        <!-- Filtros e Estatísticas -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white p-4 rounded-lg shadow">
+                <h3 class="text-lg font-semibold mb-2">Total de Itens</h3>
+                <p class="text-3xl font-bold text-primary" id="totalItems">0</p>
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow">
+                <h3 class="text-lg font-semibold mb-2">Em Andamento</h3>
+                <p class="text-3xl font-bold text-status_andamento" id="andamentoItems">0</p>
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow">
+                <h3 class="text-lg font-semibold mb-2">Concluídas</h3>
+                <p class="text-3xl font-bold text-status_concluida" id="concluidaItems">0</p>
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow">
+                <h3 class="text-lg font-semibold mb-2">Não Iniciadas</h3>
+                <p class="text-3xl font-bold text-status_nao_iniciada" id="naoIniciadaItems">0</p>
+            </div>
+        </div>
+
+        <!-- Filtros Avançados -->
+        <div class="bg-white rounded-lg shadow p-6 mb-8">
+            <h2 class="text-xl font-semibold mb-4">Filtros Avançados</h2>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <!-- Barra de Pesquisa -->
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium mb-1">Buscar</label>
+                    <div class="relative">
+                        <input type="text" id="searchInput" placeholder="Digite para buscar..." 
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                        <div class="absolute inset-y-0 right-0 flex items-center pr-3">
+                            <i class="fas fa-search text-gray-400"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filtro de Status -->
+                <div>
+                    <label class="block text-sm font-medium mb-1">Status</label>
+                    <select id="statusFilter" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent custom-select">
+                        <option value="todos">Todos os status</option>
+                        <option value="nao-iniciada">Não Iniciado</option>
+                        <option value="andamento">Em Andamento</option>
+                        <option value="concluida">Concluído</option>
+                    </select>
+                </div>
+
+                <!-- Ordenação -->
+                <div>
+                    <label class="block text-sm font-medium mb-1">Ordenar por</label>
+                    <select id="sortFilter" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent custom-select">
+                        <option value="data-desc">Data (Mais Recente)</option>
+                        <option value="data-asc">Data (Mais Antiga)</option>
+                        <option value="titulo-asc">Título (A-Z)</option>
+                        <option value="titulo-desc">Título (Z-A)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Filtro de Intervalo de Datas -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium mb-1">Filtrar por Data do Campo Personalizado</label>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs text-gray-500 mb-1">Data Inicial</label>
+                            <input type="date" id="startDate" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-gray-500 mb-1">Data Final</label>
+                            <input type="date" id="endDate" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-end">
+                    <button id="clearFilters" class="w-full bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300">
+                        <i class="fas fa-times mr-2"></i> Limpar Filtros
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Visualização em Cards -->
+        <div class="mb-8">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-semibold">Visualização em Cards</h2>
+                <span class="text-sm text-gray-500" id="filteredCount"></span>
+            </div>
+            <div id="cardsView" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <div class="col-span-full text-center py-12 text-gray-500">
+                    <i class="fas fa-database text-4xl mb-4"></i>
+                    <p>Nenhum dado carregado. Configure a conexão com o Notion.</p>
+                </div>
+            </div>
+            
+            <!-- Paginação Cards -->
+            <div id="cardsPagination" class="hidden mt-8 flex justify-center items-center space-x-2">
+                <button id="prevCardsPage" class="pagination-btn bg-gray-200 text-gray-700 px-4 py-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <span id="cardsPageInfo" class="px-4 py-2 text-sm text-gray-600">Página 1 de 1</span>
+                <button id="nextCardsPage" class="pagination-btn bg-gray-200 text-gray-700 px-4 py-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Visualização em Tabela -->
+        <div class="bg-white rounded-lg shadow overflow-hidden mb-8">
+            <div class="flex justify-between items-center p-4 border-b">
+                <h2 class="text-xl font-semibold">Visualização em Tabela</h2>
+                <span class="text-sm text-gray-500" id="tableFilteredCount"></span>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Título</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableView" class="bg-white divide-y divide-gray-200">
+                        <tr>
+                            <td colspan="4" class="px-6 py-4 text-center text-gray-500">
+                                Nenhum dado carregado. Configure a conexão avec Notion.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Paginação Tabela -->
+            <div id="tablePagination" class="hidden p-4 border-t flex justify-center items-center space-x-2">
+                <button id="prevTablePage" class="pagination-btn bg-gray-200 text-gray-700 px-4 py-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <span id="tablePageInfo" class="px-4 py-2 text-sm text-gray-600">Página 1 de 1</span>
+                <button id="nextTablePage" class="pagination-btn bg-gray-200 text-gray-700 px-4 py-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal de Configuração -->
+    <div id="configModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+        <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-md mx-4">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-semibold">Configuração da API</h3>
+                <button id="closeModal" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium mb-1">Integration Token</label>
+                    <input type="password" id="configApiKey" class="w-full px-3 py-2 border rounded-lg" placeholder="secret_...">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Database ID</label>
+                    <input type="text" id="configDatabaseId" class="w-full px-3 py-2 border rounded-lg" placeholder="abc123...">
+                </div>
+                <div class="pt-4">
+                    <button id="testConnection" class="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 mb-2">
+                        Testar Conexão
+                    </button>
+                    <button id="saveConfig" class="w-full bg-primary text-white py-2 rounded-lg hover:bg-blue-700">
+                        Salvar e Carregar Dados
+                    </button>
+                </div>
+                <div id="testResult" class="hidden p-3 rounded-lg"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Elementos DOM
+        const refreshBtn = document.getElementById('refreshBtn');
+        const configBtn = document.getElementById('configBtn');
+        const configModal = document.getElementById('configModal');
+        const closeModal = document.getElementById('closeModal');
+        const saveConfig = document.getElementById('saveConfig');
+        const testConnection = document.getElementById('testConnection');
+        const testResult = document.getElementById('testResult');
+        const cardsView = document.getElementById('cardsView');
+        const tableView = document.getElementById('tableView');
+        const totalItems = document.getElementById('totalItems');
+        const andamentoItems = document.getElementById('andamentoItems');
+        const concluidaItems = document.getElementById('concluidaItems');
+        const naoIniciadaItems = document.getElementById('naoIniciadaItems');
+        const searchInput = document.getElementById('searchInput');
+        const statusFilter = document.getElementById('statusFilter');
+        const sortFilter = document.getElementById('sortFilter');
+        const startDate = document.getElementById('startDate');
+        const endDate = document.getElementById('endDate');
+        const clearFilters = document.getElementById('clearFilters');
+        const filteredCount = document.getElementById('filteredCount');
+        const tableFilteredCount = document.getElementById('tableFilteredCount');
+        
+        // Elementos de paginação
+        const cardsPagination = document.getElementById('cardsPagination');
+        const prevCardsPage = document.getElementById('prevCardsPage');
+        const nextCardsPage = document.getElementById('nextCardsPage');
+        const cardsPageInfo = document.getElementById('cardsPageInfo');
+        
+        const tablePagination = document.getElementById('tablePagination');
+        const prevTablePage = document.getElementById('prevTablePage');
+        const nextTablePage = document.getElementById('nextTablePage');
+        const tablePageInfo = document.getElementById('tablePageInfo');
+        
+        const configApiKey = document.getElementById('configApiKey');
+        const configDatabaseId = document.getElementById('configDatabaseId');
+
+        // Estado da aplicação
+        let notionData = [];
+        let filteredData = [];
+        let databaseProperties = {};
+        let currentCardsPage = 1;
+        let currentTablePage = 1;
+        const cardsPerPage = 8;
+        const tableRowsPerPage = 10;
+        let isLoading = false;
+        let searchTimeout = null;
+
+        // Funções
+        function toggleLoading(button, text) {
+            isLoading = !isLoading;
+            if (isLoading) {
+                button.innerHTML = `<span class="loading"></span> ${text}`;
+                button.disabled = true;
+            } else {
+                button.innerHTML = '<i class="fas fa-sync-alt mr-2"></i> Atualizar';
+                button.disabled = false;
+            }
+        }
+
+        function showConfigModal() {
+            fetch('notion-proxy.php?action=getConfig')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.config) {
+                        configApiKey.value = data.config.api_key || '';
+                        configDatabaseId.value = data.config.database_id || '';
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro ao carregar configurações:', error);
+                });
+            
+            configModal.classList.remove('hidden');
+            configModal.classList.add('flex');
+        }
+
+        function hideConfigModal() {
+            configModal.classList.remove('flex');
+            configModal.classList.add('hidden');
+            testResult.classList.add('hidden');
+        }
+
+        function showTestResult(message, isSuccess) {
+            testResult.classList.remove('hidden');
+            testResult.className = isSuccess 
+                ? 'p-3 rounded-lg bg-green-100 text-green-800' 
+                : 'p-3 rounded-lg bg-red-100 text-red-800';
+            testResult.innerHTML = message;
+        }
+
+        function getStatusText(statusValue) {
+            if (!statusValue) return 'Não iniciada';
+            
+            const statusLower = statusValue.toLowerCase();
+            if (statusLower.includes('andamento') || statusLower.includes('progress') || statusLower.includes('em andamento')) return 'Em andamento';
+            if (statusLower.includes('concluída') || statusLower.includes('concluida') || statusLower.includes('complete') || statusLower.includes('concluído')) return 'Concluída';
+            if (statusLower.includes('iniciada') || statusLower.includes('not started') || statusLower.includes('não iniciada')) return 'Não iniciada';
+            
+            return statusValue;
+        }
+
+        function getStatusClass(statusValue) {
+            const statusLower = statusValue.toLowerCase();
+            if (statusLower.includes('andamento') || statusLower.includes('progress') || statusLower.includes('em andamento')) return 'status-andamento';
+            if (statusLower.includes('concluída') || statusLower.includes('concluida') || statusLower.includes('complete') || statusLower.includes('concluído')) return 'status-concluida';
+            return 'status-nao-iniciada';
+        }
+
+        function getStatusValueForFilter(statusText) {
+            const statusLower = statusText.toLowerCase();
+            if (statusLower.includes('andamento') || statusLower.includes('progress') || statusLower.includes('em andamento')) return 'andamento';
+            if (statusLower.includes('concluída') || statusLower.includes('concluida') || statusLower.includes('complete') || statusLower.includes('concluído')) return 'concluida';
+            return 'nao-iniciada';
+        }
+
+        // Função para obter valor de qualquer propriedade dinamicamente
+        function getPropertyValue(property, propertyType) {
+            if (!property || !propertyType) return '';
+            
+            try {
+                switch (propertyType) {
+                    case 'title':
+                        return property.title?.map(t => t.plain_text).join(' ') || '';
+                    case 'rich_text':
+                        return property.rich_text?.map(t => t.plain_text).join(' ') || '';
+                    case 'number':
+                        return property.number !== null && property.number !== undefined ? property.number : '';
+                    case 'select':
+                        return property.select?.name || '';
+                    case 'multi_select':
+                        return property.multi_select?.map(s => s.name).join(', ') || '';
+                    case 'date':
+                        if (!property.date) return '';
+                        return property.date.start + (property.date.end ? ' - ' + property.date.end : '');
+                    case 'formula':
+                        return property.formula?.[property.formula.type] || '';
+                    case 'relation':
+                        return property.relation?.length ? `${property.relation.length} relações` : '';
+                    case 'rollup':
+                        return property.rollup?.[property.rollup.type] || '';
+                    case 'people':
+                        return property.people?.length ? `${property.people.length} pessoas` : '';
+                    case 'files':
+                        return property.files?.length ? `${property.files.length} arquivos` : '';
+                    case 'checkbox':
+                        return property.checkbox ? 'Sim' : 'Não';
+                    case 'url':
+                        return property.url || '';
+                    case 'email':
+                        return property.email || '';
+                    case 'phone_number':
+                        return property.phone_number || '';
+                    case 'created_time':
+                        return property.created_time ? new Date(property.created_time).toLocaleDateString('pt-BR') : '';
+                    case 'created_by':
+                        return property.created_by?.object === 'user' ? 'Usuário' : '';
+                    case 'last_edited_time':
+                        return property.last_edited_time ? new Date(property.last_edited_time).toLocaleDateString('pt-BR') : '';
+                    case 'last_edited_by':
+                        return property.last_edited_by?.object === 'user' ? 'Usuário' : '';
+                    case 'status':
+                        return property.status?.name || '';
+                    default:
+                        try {
+                            if (property[propertyType] !== undefined) {
+                                return String(property[propertyType]);
+                            }
+                            return JSON.stringify(property);
+                        } catch {
+                            return '';
+                        }
+                }
+            } catch (error) {
+                console.error('Erro ao processar propriedade:', propertyType, property, error);
+                return '';
+            }
+        }
+
+        // Função para detectar status de forma dinâmica
+        function getStatusFromPage(page) {
+            // Primeiro, procurar por propriedade do tipo 'status'
+            for (const [key, prop] of Object.entries(page.properties)) {
+                if (prop.type === 'status' && prop.status?.name) {
+                    return prop.status.name.toLowerCase();
+                }
+            }
+            
+            // Depois, procurar por propriedade do tipo 'select' com nome que contenha 'status'
+            for (const [key, prop] of Object.entries(page.properties)) {
+                if ((prop.type === 'select' && key.toLowerCase().includes('status')) && prop.select?.name) {
+                    return prop.select.name.toLowerCase();
+                }
+            }
+            
+            // Por último, procurar qualquer propriedade com nome 'status'
+            for (const [key, prop] of Object.entries(page.properties)) {
+                if (key.toLowerCase() === 'status') {
+                    const value = getPropertyValue(prop, prop.type);
+                    return value.toLowerCase();
+                }
+            }
+            
+            return 'nao-iniciada';
+        }
+
+        // Função para renderizar propriedades dinamicamente
+        function renderDynamicProperties(properties) {
+            let html = '';
+            
+            for (const [key, propConfig] of Object.entries(databaseProperties)) {
+                if (key.toLowerCase() === 'status' || propConfig.type === 'title') continue;
+                
+                const value = getPropertyValue(properties[key], propConfig.type);
+                if (value) {
+                    let displayValue = value;
+                    if (displayValue.length > 30) {
+                        displayValue = displayValue.substring(0, 30) + '...';
+                    }
+                    
+                    html += `<span class="property-pill" title="${key}: ${value}">${key}: ${displayValue}</span>`;
+                }
+            }
+            
+            return html || '<span class="property-pill">Sem propriedades adicionais</span>';
+        }
+
+        // Função para encontrar o campo de data personalizado
+        function findDateProperty(page) {
+            // Procura por propriedades do tipo 'date'
+            const datePropertyEntry = Object.entries(page.properties).find(([key, prop]) => 
+                prop.type === 'date' && prop.date !== null
+            );
+            
+            return datePropertyEntry ? datePropertyEntry[1] : null;
+        }
+
+        // Função para obter a data do campo personalizado
+        function getCustomDate(page) {
+            const dateProperty = findDateProperty(page);
+            if (dateProperty && dateProperty.date && dateProperty.date.start) {
+                return new Date(dateProperty.date.start);
+            }
+            return null;
+        }
+
+        // Função para ordenar os dados
+        function sortData(data) {
+            const sortValue = sortFilter.value;
+            const sortedData = [...data];
+            
+            sortedData.sort((a, b) => {
+                switch (sortValue) {
+                    case 'data-desc':
+                        const dateA = getCustomDate(a);
+                        const dateB = getCustomDate(b);
+                        if (!dateA && !dateB) return 0;
+                        if (!dateA) return 1;
+                        if (!dateB) return -1;
+                        return dateB - dateA;
+                    
+                    case 'data-asc':
+                        const dateA2 = getCustomDate(a);
+                        const dateB2 = getCustomDate(b);
+                        if (!dateA2 && !dateB2) return 0;
+                        if (!dateA2) return 1;
+                        if (!dateB2) return -1;
+                        return dateA2 - dateB2;
+                    
+                    case 'titulo-asc':
+                        const titleA = Object.values(a.properties).find(prop => prop.type === 'title');
+                        const titleB = Object.values(b.properties).find(prop => prop.type === 'title');
+                        const textA = titleA ? getPropertyValue(titleA, 'title') : '';
+                        const textB = titleB ? getPropertyValue(titleB, 'title') : '';
+                        return textA.localeCompare(textB);
+                    
+                    case 'titulo-desc':
+                        const titleA2 = Object.values(a.properties).find(prop => prop.type === 'title');
+                        const titleB2 = Object.values(b.properties).find(prop => prop.type === 'title');
+                        const textA2 = titleA2 ? getPropertyValue(titleA2, 'title') : '';
+                        const textB2 = titleB2 ? getPropertyValue(titleB2, 'title') : '';
+                        return textB2.localeCompare(textA2);
+                    
+                    default:
+                        return 0;
+                }
+            });
+            
+            return sortedData;
+        }
+
+        // Função para aplicar todos os filtros
+        function applyAllFilters() {
+            const searchValue = searchInput.value.toLowerCase();
+            const statusValue = statusFilter.value;
+            const startDateValue = startDate.value;
+            const endDateValue = endDate.value;
+
+            filteredData = notionData.filter(page => {
+                // Filtro de busca
+                if (searchValue) {
+                    const titleProperty = Object.values(page.properties).find(prop => prop.type === 'title');
+                    const title = titleProperty ? getPropertyValue(titleProperty, 'title').toLowerCase() : '';
+                    
+                    let found = title.includes(searchValue);
+                    if (!found) {
+                        for (const [key, value] of Object.entries(page.properties)) {
+                            const propConfig = databaseProperties[key];
+                            if (propConfig) {
+                                const valueStr = getPropertyValue(value, propConfig.type).toString().toLowerCase();
+                                if (valueStr.includes(searchValue)) {
+                                    found = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    if (!found) return false;
+                }
+
+                // Filtro de status
+                if (statusValue !== 'todos') {
+                    const pageStatus = getStatusFromPage(page);
+                    const statusForFilter = getStatusValueForFilter(pageStatus);
+                    
+                    if (statusForFilter !== statusValue) return false;
+                }
+
+                // Filtro por data personalizada
+                if (startDateValue || endDateValue) {
+                    const customDate = getCustomDate(page);
+                    
+                    if (!customDate) return false;
+                    
+                    if (startDateValue) {
+                        const start = new Date(startDateValue);
+                        if (customDate < start) return false;
+                    }
+                    
+                    if (endDateValue) {
+                        const end = new Date(endDateValue);
+                        end.setHours(23, 59, 59, 999);
+                        if (customDate > end) return false;
+                    }
+                }
+
+                return true;
+            });
+
+            // Ordenar os dados
+            filteredData = sortData(filteredData);
+
+            // Resetar paginação
+            currentCardsPage = 1;
+            currentTablePage = 1;
+            
+            // Atualizar contadores
+            filteredCount.textContent = `${filteredData.length} de ${notionData.length} itens`;
+            tableFilteredCount.textContent = `${filteredData.length} de ${notionData.length} itens`;
+
+            // Atualizar paginação
+            updateCardsPagination();
+            updateTablePagination();
+            
+            // Renderizar dados
+            renderCardsCurrentPage();
+            renderTableCurrentPage();
+        }
+
+        // Funções de paginação para Cards
+        function updateCardsPagination() {
+            const totalPages = Math.ceil(filteredData.length / cardsPerPage);
+            
+            cardsPageInfo.textContent = `Página ${currentCardsPage} de ${totalPages}`;
+            
+            prevCardsPage.disabled = currentCardsPage === 1;
+            nextCardsPage.disabled = currentCardsPage === totalPages;
+            
+            if (filteredData.length > cardsPerPage) {
+                cardsPagination.classList.remove('hidden');
+            } else {
+                cardsPagination.classList.add('hidden');
+            }
+        }
+
+        function renderCardsCurrentPage() {
+            const startIndex = (currentCardsPage - 1) * cardsPerPage;
+            const endIndex = startIndex + cardsPerPage;
+            const currentItems = filteredData.slice(startIndex, endIndex);
+
+            renderCardsData(currentItems);
+        }
+
+        // Funções de paginação para Tabela
+        function updateTablePagination() {
+            const totalPages = Math.ceil(filteredData.length / tableRowsPerPage);
+            
+            tablePageInfo.textContent = `Página ${currentTablePage} de ${totalPages}`;
+            
+            prevTablePage.disabled = currentTablePage === 1;
+            nextTablePage.disabled = currentTablePage === totalPages;
+            
+            if (filteredData.length > tableRowsPerPage) {
+                tablePagination.classList.remove('hidden');
+            } else {
+                tablePagination.classList.add('hidden');
+            }
+        }
+
+        function renderTableCurrentPage() {
+            const startIndex = (currentTablePage - 1) * tableRowsPerPage;
+            const endIndex = startIndex + tableRowsPerPage;
+            const currentItems = filteredData.slice(startIndex, endIndex);
+
+            renderTableData(currentItems);
+        }
+
+        // Função para limpar todos os filtros
+        function clearAllFilters() {
+            searchInput.value = '';
+            statusFilter.value = 'todos';
+            sortFilter.value = 'data-desc';
+            startDate.value = '';
+            endDate.value = '';
+            
+            filteredData = [...notionData];
+            filteredData = sortData(filteredData);
+            
+            currentCardsPage = 1;
+            currentTablePage = 1;
+            
+            filteredCount.textContent = `${filteredData.length} de ${notionData.length} itens`;
+            tableFilteredCount.textContent = `${filteredData.length} de ${notionData.length} itens`;
+            
+            updateCardsPagination();
+            updateTablePagination();
+            
+            renderCardsCurrentPage();
+            renderTableCurrentPage();
+        }
+
+        async function testNotionConnection() {
+            const apiKey = configApiKey.value;
+            const databaseId = configDatabaseId.value;
+            
+            if (!apiKey || !databaseId) {
+                showTestResult('Por favor, preencha todos os campos.', false);
+                return;
+            }
+            
+            testConnection.innerHTML = '<span class="loading"></span> Testando...';
+            testConnection.disabled = true;
+            
+            try {
+                const response = await fetch('notion-proxy.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        action: 'test',
+                        apiKey: apiKey,
+                        databaseId: databaseId
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Mostrar informações da estrutura do banco
+                    let propertiesInfo = '<div class="mt-4"><h4 class="font-semibold">Estrutura do Banco:</h4><ul class="text-sm">';
+                    
+                    for (const [key, config] of Object.entries(data.database_properties || {})) {
+                        propertiesInfo += `<li><strong>${key}:</strong> ${config.type}</li>`;
+                    }
+                    
+                    propertiesInfo += '</ul></div>';
+                    
+                    showTestResult('✅ Conexão bem-sucedida! Estrutura dinâmica carregada.' + propertiesInfo, true);
+                } else {
+                    showTestResult(`❌ Erro: ${data.error}`, false);
+                }
+            } catch (error) {
+                showTestResult(`❌ Erro de conexão: ${error.message}`, false);
+            }
+            
+            testConnection.innerHTML = 'Testar Conexão';
+            testConnection.disabled = false;
+        }
+
+        async function fetchNotionData() {
+            toggleLoading(refreshBtn, 'Carregando...');
+            
+            try {
+                const response = await fetch('notion-proxy.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        action: 'query'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    notionData = data.results;
+                    databaseProperties = data.properties || {};
+                    filteredData = [...notionData];
+                    filteredData = sortData(filteredData);
+                    applyAllFilters();
+                    
+                    // Atualizar estatísticas de status
+                    updateStatusCounts();
+                } else {
+                    throw new Error(data.error);
+                }
+            } catch (error) {
+                console.error('Erro ao buscar dados:', error);
+                alert('Erro ao carregar dados: ' + error.message);
+            }
+            
+            toggleLoading(refreshBtn, 'Carregando...');
+        }
+
+        // Função para atualizar contadores de status
+        function updateStatusCounts() {
+            let andamentoCount = 0;
+            let concluidaCount = 0;
+            let naoIniciadaCount = 0;
+            
+            notionData.forEach(page => {
+                const status = getStatusFromPage(page);
+                const statusForCount = getStatusValueForFilter(status);
+                
+                if (statusForCount === 'andamento') andamentoCount++;
+                else if (statusForCount === 'concluida') concluidaCount++;
+                else naoIniciadaCount++;
+            });
+            
+            andamentoItems.textContent = andamentoCount;
+            concluidaItems.textContent = concluidaCount;
+            naoIniciadaItems.textContent = naoIniciadaCount;
+            totalItems.textContent = notionData.length;
+        }
+
+        function renderCardsData(data) {
+            cardsView.innerHTML = '';
+
+            if (data.length === 0) {
+                cardsView.innerHTML = `
+                    <div class="col-span-full text-center py-12 text-gray-500">
+                        <i class="fas fa-search text-4xl mb-4"></i>
+                        <p>Nenhum resultado encontrado com os filtros atuais.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Renderizar cards
+            data.forEach(page => {
+                const titleProperty = Object.values(page.properties).find(prop => prop.type === 'title');
+                const title = titleProperty ? getPropertyValue(titleProperty, 'title') : 'Sem título';
+                const url = page.url;
+                
+                // Obter data do campo personalizado (procura por primeiro campo de data)
+                let dateDisplay = 'Sem data';
+                for (const [key, propConfig] of Object.entries(databaseProperties)) {
+                    if (propConfig.type === 'date' && page.properties[key]?.date) {
+                        const dateValue = getPropertyValue(page.properties[key], 'date');
+                        if (dateValue) {
+                            dateDisplay = dateValue;
+                            break;
+                        }
+                    }
+                }
+                
+                // Detectar status
+                const pageStatus = getStatusFromPage(page);
+                const statusText = getStatusText(pageStatus);
+                const statusClass = getStatusClass(pageStatus);
+                
+                const card = document.createElement('div');
+                card.className = 'bg-white rounded-lg shadow card-hover';
+                card.innerHTML = `
+                    <div class="p-4 border-b">
+                        <div class="flex justify-between items-start">
+                            <h3 class="font-semibold text-lg">${title}</h3>
+                            <span class="status-badge ${statusClass}">${statusText}</span>
+                        </div>
+                        <div class="mt-2">
+                            ${renderDynamicProperties(page.properties)}
+                        </div>
+                    </div>
+                    <div class="p-4 flex justify-between items-center">
+                        <span class="text-gray-500 text-sm">Data: ${dateDisplay}</span>
+                        <a href="${url}" target="_blank" class="text-primary hover:text-blue-800">
+                            <i class="fas fa-external-link-alt"></i>
+                        </a>
+                    </div>
+                `;
+                cardsView.appendChild(card);
+            });
+        }
+
+        function renderTableData(data) {
+            tableView.innerHTML = '';
+
+            if (data.length === 0) {
+                tableView.innerHTML = `
+                    <tr>
+                        <td colspan="4" class="px-6 py-4 text-center text-gray-500">
+                            Nenhum resultado encontrado com os filtros atuais.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            // Renderizar tabela
+            data.forEach(page => {
+                const titleProperty = Object.values(page.properties).find(prop => prop.type === 'title');
+                const title = titleProperty ? getPropertyValue(titleProperty, 'title') : 'Sem título';
+                const url = page.url;
+                
+                // Obter data do campo personalizado
+                let dateDisplay = 'Sem data';
+                for (const [key, propConfig] of Object.entries(databaseProperties)) {
+                    if (propConfig.type === 'date' && page.properties[key]?.date) {
+                        const dateValue = getPropertyValue(page.properties[key], 'date');
+                        if (dateValue) {
+                            dateDisplay = dateValue;
+                            break;
+                        }
+                    }
+                }
+                
+                // Detectar status
+                const pageStatus = getStatusFromPage(page);
+                const statusText = getStatusText(pageStatus);
+                const statusClass = getStatusClass(pageStatus);
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="font-medium text-gray-900">${title}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="status-badge ${statusClass}">${statusText}</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        ${dateDisplay}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <a href="${url}" target="_blank" class="text-primary hover:text-blue-900 mr-3">
+                            <i class="fas fa-external-link-alt"></i>
+                        </a>
+                    </td>
+                `;
+                tableView.appendChild(row);
+            });
+        }
+
+        // Event Listeners
+        refreshBtn.addEventListener('click', fetchNotionData);
+        configBtn.addEventListener('click', showConfigModal);
+        closeModal.addEventListener('click', hideConfigModal);
+        
+        testConnection.addEventListener('click', testNotionConnection);
+        
+        saveConfig.addEventListener('click', () => {
+            const apiKey = configApiKey.value;
+            const databaseId = configDatabaseId.value;
+            
+            if (apiKey && databaseId) {
+                fetch('notion-proxy.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        action: 'saveConfig',
+                        apiKey: apiKey,
+                        databaseId: databaseId
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        hideConfigModal();
+                        fetchNotionData();
+                    } else {
+                        alert('Erro ao salvar configurações: ' + data.error);
+                    }
+                })
+                .catch(error => {
+                    alert('Erro ao salvar configurações: ' + error.message);
+                });
+            } else {
+                alert('Por favor, preencha todos os campos.');
+            }
+        });
+
+        // Event listeners para os filtros
+        searchInput.addEventListener('input', () => {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                applyAllFilters();
+            }, 300);
+        });
+
+        statusFilter.addEventListener('change', applyAllFilters);
+        sortFilter.addEventListener('change', applyAllFilters);
+        startDate.addEventListener('change', applyAllFilters);
+        endDate.addEventListener('change', applyAllFilters);
+        clearFilters.addEventListener('click', clearAllFilters);
+
+        // Event listeners para paginação de Cards
+        prevCardsPage.addEventListener('click', () => {
+            if (currentCardsPage > 1) {
+                currentCardsPage--;
+                updateCardsPagination();
+                renderCardsCurrentPage();
+            }
+        });
+
+        nextCardsPage.addEventListener('click', () => {
+            const totalPages = Math.ceil(filteredData.length / cardsPerPage);
+            if (currentCardsPage < totalPages) {
+                currentCardsPage++;
+                updateCardsPagination();
+                renderCardsCurrentPage();
+            }
+        });
+
+        // Event listeners para paginação de Tabela
+        prevTablePage.addEventListener('click', () => {
+            if (currentTablePage > 1) {
+                currentTablePage--;
+                updateTablePagination();
+                renderTableCurrentPage();
+            }
+        });
+
+        nextTablePage.addEventListener('click', () => {
+            const totalPages = Math.ceil(filteredData.length / tableRowsPerPage);
+            if (currentTablePage < totalPages) {
+                currentTablePage++;
+                updateTablePagination();
+                renderTableCurrentPage();
+            }
+        });
+
+        // Inicializar
+        window.addEventListener('DOMContentLoaded', () => {
+            fetch('notion-proxy.php?action=getConfig')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.config) {
+                        fetchNotionData();
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro ao carregar configurações:', error);
+                });
+        });
+    </script>
+</body>
+</html>
